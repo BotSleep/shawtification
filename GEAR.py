@@ -103,11 +103,18 @@ if __name__=='__main__':
             os.rename(store_dir+file,folder_name+file)
     
     if len([file for file in os.listdir(source_dir)])==0:
-        print("There is currently no source file in IO/IN.")
-        print("Please place your starting image there, and ensure it to be the same size as the dimensions in Brain.json")
-        print("Configure brain.json, and when finished press any key to begin.")
-        print("Brain.json's Pause_Flag: when changed pauses program, allows replacement of the source without restarting.")
-        input("Waiting.")
+        print("\nThere is currently no source file in SHAWTYS_TRINKETS/IO/IN/ \n",
+                    "Please place your starting image there. \n",
+                    "Ensure the image is square [else it will be resized, not cropped.] \n",
+                   "Configure SHAWTYS_TRINKETS\BRAIN.json with desired paramaters \n",
+                  "\t \t \t Note on Paramaters: \n",
+                  "\t All paramaters can be edited while this program runs. \n",
+                  "\t They will take effect on the next iteration. Make sure to ctrl+s. \n",
+                "\t Z_Pixels: number of pixels around the image to add or remove. + zooms out, - in. 0 nothing. \n",
+                "\n \t Pause_Flag: setting this to any value besides '0' will pause on the next load. \n",
+                "\n \t \t \t This helps switch out source files without having to restart the program \n")
+        print("\n When finished press any key to begin.")
+        input("Waiting...")
     
     SDV14=sd.load_model()
     sh.sd_model=SDV14
