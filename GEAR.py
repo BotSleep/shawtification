@@ -53,31 +53,30 @@ def grabJson():
         
         cv2.imwrite(Z_file,img)
         storeParams["init_images"]=[(Image.open(Z_file)).convert("RGBA")]
-    try:
-        if config["M_Pixels"]>0:
-            try:
-                os.remove(M_file)
-            except:
-                pass
-            M=int(config["M_Pixels"])
-            block=np.zeros((img.shape[0]-M*2,img.shape[1]-M*2,3))
-            noblock=np.ones((img.shape[0],img.shape[0],3))
-            noblock[M:img.shape[0]-M,M:img.shape[1]-M,:]=block
-            cv2.imwrite(M_file,(noblock*255).astype(np.uint8))
-            mask=Image.open(M_file)
-            mask=mask.convert("RGBA")
-            mData=mask.getdata()
-            nData=[]
-            for i in mData:
-                if i[0:3]==(0,0,0):
-                    nData.append((0,0,0,0))
-                else:
-                    nData.append(i)
-            mask.putdata(nData)
-            storeParams["mask"]=mask
-            storeParams["mask_blur"]=int(config["M_Blur"])
-    except:
-        print("Mask Config Failed.")
+
+    if config["M_Pixels"]>0:
+        try:
+            os.remove(M_file)
+        except:
+            pass
+        M=int(config["M_Pixels"])
+        block=np.zeros((img.shape[0]-M*2,img.shape[1]-M*2,3))
+        noblock=np.ones((img.shape[0],img.shape[0],3))
+        noblock[M:img.shape[0]-M,M:img.shape[1]-M,:]=block
+        cv2.imwrite(M_file,(noblock*255).astype(np.uint8))
+        mask=Image.open(M_file)
+        mask=mask.convert("RGBA")
+        mData=mask.getdata()
+        nData=[]
+        for i in mData:
+            if i[0:3]==(0,0,0):
+                nData.append((0,0,0,0))
+            else:
+                nData.append(i)
+        mask.putdata(nData)
+        storeParams["mask"]=mask
+        storeParams["mask_blur"]=int(config["M_Blur"])
+
     
     storeParams.update(defaulted_args)
 
@@ -91,12 +90,12 @@ def automate():
         setting the Brain.json pause flag to anythin other than "0" pauses the cycle.
         This would allow you to replace the starting image, without needing to restart.
         '''
+        params=grabJson()
         while pause_flag!=0:
             params=grabJson()
             time.sleep(1)
             print("Paused....",end='\r')
         print('\n')
-        
         #using paramaters obtained from BRAIN.json, run with the image in /IN dir
         proc.process_images(proc.StableDiffusionProcessingImg2Img(**dict(params)))
         
