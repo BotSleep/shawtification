@@ -7,5 +7,7 @@
 "Sampler_Index":2,
 "Steps":35,
 "Z_Pixels":-3,
+"M_Pixels":0,
+"M_Blur":5,
 "Pause_Flag":"0"
 }

@@ -53,6 +53,32 @@ def grabJson():
         
         cv2.imwrite(Z_file,img)
         storeParams["init_images"]=[(Image.open(Z_file)).convert("RGBA")]
+    try:
+        if config["M_Pixels"]>0:
+            try:
+                os.remove(M_file)
+            except:
+                pass
+            M=int(config["M_Pixels"])
+            block=np.zeros((img.shape[0]-M*2,img.shape[1]-M*2,3))
+            noblock=np.ones((img.shape[0],img.shape[0],3))
+            noblock[M:img.shape[0]-M,M:img.shape[1]-M,:]=block
+            cv2.imwrite(M_file,(noblock*255).astype(np.uint8))
+            mask=Image.open(M_file)
+            mask=mask.convert("RGBA")
+            mData=mask.getdata()
+            nData=[]
+            for i in mData:
+                if i[0:3]==(0,0,0):
+                    nData.append((0,0,0,0))
+                else:
+                    nData.append(i)
+            mask.putdata(nData)
+            storeParams["mask"]=mask
+            storeParams["mask_blur"]=int(config["M_Blur"])
+    except:
+        print("Mask Config Failed.")
+    
     storeParams.update(defaulted_args)
 
     return storeParams
@@ -94,6 +120,7 @@ if __name__=='__main__':
     output_dir="SHAWTYS_TRINKETS/IO/OUT/"
     store_dir="SHAWTYS_TRINKETS/IO/BIN/"
     Z_file="SHAWTYS_TRINKETS/IO/Z_FILE/Z_SOURCE.png"
+    M_file="SHAWTYS_TRINKETS/IO/Z_FILE/M_SOURCE.png"
     
     #Move current BIN files to BIN_OUT
     if len([file for file in os.listdir(store_dir)])!=0:
