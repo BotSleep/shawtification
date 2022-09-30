@@ -1,0 +1,12 @@
+{
+"Positive_Prompt":"",
+"Negative_Prompt":"",
+"Dimension":512,
+"CFG_Scale": 10,
+"Denoise":0.5,
+"Sampler_Index":2,
+"Steps":35,
+"From_T/I": "Z",
+"Z_Pixels":-3,
+"Pause_Flag":"0"
+}
