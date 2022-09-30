@@ -1,13 +1,13 @@
 {
-"Positive_Prompt":"",
+"Positive_Prompt":"Fat cat sitting up",
 "Negative_Prompt":"",
-"Dimension":512,
+"Dimension":320,
 "CFG_Scale": 10,
 "Denoise":0.5,
 "Sampler_Index":2,
-"Steps":35,
-"Z_Pixels":-3,
-"M_Pixels":0,
+"Steps":20,
+"Z_Pixels":3,
+"M_Pixels":5,
 "M_Blur":5,
 "Pause_Flag":"0"
 }

@@ -18,6 +18,7 @@ def grabJson():
     
     storeParams={
         "prompt":                      str(config["Positive_Prompt"]),
+        "negative_prompt":      str(config["Negative_Prompt"]),
         "cfg_scale":                   float(config["CFG_Scale"]),
         "sampler_index":          int(config["Sampler_Index"]),
         "steps":                          int(config["Steps"]),
@@ -54,7 +55,7 @@ def grabJson():
         cv2.imwrite(Z_file,img)
         storeParams["init_images"]=[(Image.open(Z_file)).convert("RGBA")]
 
-    if config["M_Pixels"]>0:
+    if int(config["M_Pixels"])>0:
         try:
             os.remove(M_file)
         except:
@@ -74,11 +75,9 @@ def grabJson():
             else:
                 nData.append(i)
         mask.putdata(nData)
+        mask.save(M_file)
         storeParams["mask"]=mask
         storeParams["mask_blur"]=int(config["M_Blur"])
-
-    
-    storeParams.update(defaulted_args)
 
     return storeParams
 
@@ -95,7 +94,9 @@ def automate():
             params=grabJson()
             time.sleep(1)
             print("Paused....",end='\r')
-        print('\n')
+        print(f'\n{params}\n')
+        params.update(defaulted_args)
+        
         #using paramaters obtained from BRAIN.json, run with the image in /IN dir
         proc.process_images(proc.StableDiffusionProcessingImg2Img(**dict(params)))
         
