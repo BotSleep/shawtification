@@ -1,16 +1,20 @@
 import modules.processing as proc
 import modules.sd_models as sd
 import modules.shared as sh
+
+from skimage import exposure
 from PIL import Image
 import numpy as np
 import datetime
+import shutil
 import time
 import json
 import cv2
 import os
 
+
 def grabJson():
-    global pause_flag,textMode
+    global pause_flag,textMode,,cc_correct
 
     config=json.load(open("SHAWTYS_TRINKETS/BRAIN.json"))
 
@@ -36,6 +40,18 @@ def grabJson():
     else:
         textMode=0
     
+    cc_correct=0
+    if int(config["Color_Correct"])==1:
+        cc_correct=1
+        if !(os.path.exists(C_file)):
+            try:
+                cc=cv2.imread(source_dir+[file for file in os.listdir(source_dir)][0])
+                cc=cv2.resize(cc,(int(storeParams["height"]),int(storeParams["height"])),cv2.INTER_AREA)
+                cv2.imwrite("SHAWTYS_TRINKETS/IO/TMP/CC_SOURCE.png",cc)
+            except:
+                print("Couldn't create color_correction source file. Place file in IO/TMP/ named 'CC_SOURCE.png'")
+
+        
     storeParams["denoising_strength"]=float(config["Denoise"])
     
     zint=int(config["Z_Pixels"])
@@ -52,11 +68,35 @@ def grabJson():
         img=cv2.imread(source_dir+[file for file in os.listdir(source_dir)][0])
         dims=img.shape[0:2]
         
+        z=abs(zint)
+        Lean=str(config["Z_Lean"])
+        LY=z
+        UY=dims[0]-z
+        LX=z
+        UX=dims[0]-z
+        
+        if  Lean=="D" or Lean=="U":
+            LX=z
+            UX=dims[0]-z
+            LY=0
+            UY=dims[0]-2*z
+            if Lean=="D":
+                LY=2*z
+                UY=dims[0]
+
+        elif  Lean=="L" or Lean=="R":
+            LY=z
+            UY=dims[0]-z
+            LX=z*2
+            UX=dims[0]
+            if Lean=="L":
+                LX=0
+                UX=dims[0]-z*2
+            
         if zint>0:
-            img[zint:dims[0]-zint,zint:dims[1]-zint,:]=cv2.resize(img, (dims[0]-zint*2,dims[0]-zint*2), interpolation = cv2.INTER_AREA)
+            img[LY:UY,LX:UX,:]=cv2.resize(img, (dims[0]-zint*2,dims[0]-zint*2), interpolation = cv2.INTER_AREA)
         else:
-            zint=abs(zint)
-            img = cv2.resize(img[zint:dims[0]-zint,zint:dims[1]-zint,:], dims, interpolation = cv2.INTER_AREA)
+            img = cv2.resize(img[LY:UY,LX:UX,:], dims, interpolation = cv2.INTER_AREA)
             
         try:
             os.remove(Z_file)
@@ -100,7 +140,7 @@ def automate():
             params=grabJson()
             time.sleep(1)
             print("Paused....",end='\r')
-        print(f'\n{params} FromText: {bool(textMode)}\n')
+        print([str(x)+str(params[x])+"\n"  for x in params if x!= "init_images"])
         params.update(defaulted_args)
         
         if textMode==0:
@@ -121,7 +161,15 @@ def automate():
                 
         #take the image just produced, move it to /IN dir
         output_img=[file for file in os.listdir(output_dir)][0]
-        os.rename(output_dir+ output_img, source_dir+ output_img)
+        if cc_correct==1 and os.path.exists(Z_file):
+            print("CCING")
+            Image.fromarray(exposure.match_histograms(
+                    cv2.cvtColor(np.asarray(Image.open(output_dir+output_img)),cv2.COLOR_RGB2RGBA),
+                    cv2.cvtColor(cv2.imread(C_file),cv2.COLOR_BGR2RGBA),
+                    channel_axis=2).astype("uint8")).save(source_dir+output_img)
+            os.remove(output_dir+output_img)
+        else:
+            os.rename(output_dir+ output_img, source_dir+ output_img)
         if textMode==1:
             time.sleep(2)
     return
@@ -131,8 +179,9 @@ if __name__=='__main__':
     source_dir="SHAWTYS_TRINKETS/IO/IN/"
     output_dir="SHAWTYS_TRINKETS/IO/OUT/"
     store_dir="SHAWTYS_TRINKETS/IO/BIN/"
-    Z_file="SHAWTYS_TRINKETS/IO/Z_FILE/Z_SOURCE.png"
-    M_file="SHAWTYS_TRINKETS/IO/Z_FILE/M_SOURCE.png"
+    Z_file="SHAWTYS_TRINKETS/IO/TMP/Z_SOURCE.png"
+    M_file="SHAWTYS_TRINKETS/IO/TMP/M_SOURCE.png"
+    C_file="SHAWTYS_TRINKETS/IO/TMP/CC_SOURCE.png"
     
     #Move current BIN files to BIN_OUT
     if len([file for file in os.listdir(store_dir)])!=0:
@@ -166,5 +215,5 @@ if __name__=='__main__':
         "restore_faces":False  
     }
     
-    pause_flag,textMode=1,0
+    pause_flag,textMode,cc_correct=1,0,0
     automate()

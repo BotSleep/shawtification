@@ -3,6 +3,8 @@ import json
 import numpy
 import math
 import time
+import string
+printable = set(string.printable)
 
 def readStory():
     with open("STORY_IN.txt",'r') as file:
@@ -30,11 +32,16 @@ def main():
         config=pauseRead()
         
         idx=min(i+10,len(words))
-        config["Positive_Prompt"]=" ".join(words[i:idx])
+        
+        config["Positive_Prompt"]=''.join(filter(lambda x: x in printable, " ".join(words[i:idx])))
         
         config["From_Text"]=0
         if i==0:
             config["From_Text"]=1
+            config["CFG_Scale"]=15
+            
+        if i==1:
+            config["CFG_Scale"]=10
             
         config["Pause_Flag"]="0"
         

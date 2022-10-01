@@ -1,1 +1,16 @@
-{"Positive_Prompt": "Ha-ha Yo, uh, ayy 'Cause I let her, she in", "Negative_Prompt": "Caption Words Memes Texts", "Dimension": 320, "CFG_Scale": 12, "Denoise": 0.4, "Sampler_Index": 2, "Steps": 20, "Z_Pixels": 0, "M_Pixels": 0, "M_Blur": 0, "Pause_Flag": "0", "From_Text": 1}
+{"Positive_Prompt": "", 
+"Negative_Prompt": "", 
+"Dimension": 512, 
+"CFG_Scale": 7, 
+"Denoise": 0.2, 
+"Sampler_Index": 2, 
+"Steps": 35, 
+"Z_Pixels": -3, 
+"Z_Lean": "D", 
+"M_Pixels": 0, 
+"M_Blur": 0, 
+"Pause_Flag": "0", 
+"From_Text": 0, 
+"Color_Correct": 1, 
+"Is_Start": 0
+}
