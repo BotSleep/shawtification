@@ -44,7 +44,7 @@ def main():
             while(len([file for file in os.listdir("IO/IN")])==0):
                 time.sleep(1)
         else:
-            while curCount-2<binCount():
+            while curCount==binCount():
                 time.sleep(0.5)
         
 if __name__=='__main__':

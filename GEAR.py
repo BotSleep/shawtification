@@ -122,7 +122,8 @@ def automate():
         #take the image just produced, move it to /IN dir
         output_img=[file for file in os.listdir(output_dir)][0]
         os.rename(output_dir+ output_img, source_dir+ output_img)
-        
+        if textMode==1:
+            time.sleep(2)
     return
         
 if __name__=='__main__':
