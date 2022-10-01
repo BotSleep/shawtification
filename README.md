@@ -1,32 +1,34 @@
-# shawtification
-{<br/>
-"Positive_Prompt":"",<br/>
-"Negative_Prompt":"",<br/>
-"Dimension":512,<br/>
-"CFG_Scale": 10,<br/>
-"Denoise":0.5,<br/>
-"Sampler_Index":2,<br/>
-"Steps":35<br/>
 
-The above are parameters that should be known.<br/>
-Input a starting image in Shawtys_trinkets/io/in<br/>
-That image should be square.<br/>
-From that point, Run_gear can be ran and the iterative process will begin with these paramaters.<br/>
+## Parameters
+### Zoom:
+Z_Pixels: Zoom direction [In,Out] and magnitude
+- [ Z_Pixels > 0 = Zoom Out] The image is sized down, and placed within itself. 
+	- EG: a 100x100 image with Z_pixels 1, is resized to 98x98. 98x98 is centered on top of 100x100.
+- [ Z_Pixels > 0 = Zoom Out] The image is simply cropped and resized. 
+	- EG: (100x100 take inner 98x98, resize to 100x100).
 
-For Z_pixels, these are the border pixels of the image that are either taken or added.<br/>
-  [zoom in] EG: -1 a 100x100 has a pixel border removed such that its 98x98, and then is resized<br/>
-  [zoom out] EG: 1 a 100x100 is resized to 98x98 and placed on top of the original 100<br/>
+Z_Lean: Zoom Direction [Left Right Up Down None]
+- This parameter requires Z_pixels !=0. 
+	- For a Z_Pixel=1 and Z_Lean=U:
+		- The 100x100 image is resized to 98x98. 98x98 is horizontally centered, but vertically touched the top border. Carry this example through the other directions, and the inverse of Z_pixels=-1
+		
+M_Pixels: A inverse Mask to be applied when using Zoom.
+- M_Pixels can only be a positive value. It is the amount of pixels around the image to actually edit. Essentially, Z_pixels=5 means there is a border of 5 pixels on every side that are 'new'. W/ M_Pixels=5, The only editable pixels are that border. 
 
-M_pixels: Intended to only be used with z_pixels.<br/>
-        Any value greater than 0 masks the entire image, except a frame of # pixels.<br/>
-        so a 100x100 image, given a 1 m_pixels, means the center 98x98 pixels are blocked from being edited.<br/>
-        In conjunction with zooming out, this is beneficial.<br/>
+### Color Correction
+Color_Correct: 
+- Value of 1 causes output to be color corrected. This correction requires a reference image. That reference image should likely be the initial source image of a iteration, rename as "CC_SOURCE.png" and placed in SHAWTYS_TRINKETS/IO/TMP/
 
-Pause flag: Switch to anything other than "0" and itll pause at the next step,<br/>
-useful for switching out source images without having to restart the process.<br/>
+### Pause_Flag
+- Setting this flag to any value other than "0" causes the gear process to stop/pause on the next step. This way you can switch out the source/ IN image, without having to restart the gear process.
 
-"Z_Pixels":3,<br/>
-"M_Pixels":10,<br/>
-"M_Blur":5,<br/>
-"Pause_Flag":"0"<br/>
-}<br/>
+## Programs
+### SHOW
+ - Shows the last output in a running iteration, optionally animates through all the produced images.
+### MAKE VIDEO
+ - Compile a input: folder into a mp4 with input: FPS
+### BIN OUT
+ - Toss the current bin folder of images into BinOut, quick cleanup
+### STORYMODE
+ - Dynamically edits the BRAIN.json file while the gear process is running. It runs through the given script.txt, and can additionally alter other parameters at each step. Currently creates the initial image with txt2img, before feeding it in to run with img2img for the duration. Has potential, not much there currently.
+
