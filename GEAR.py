@@ -14,7 +14,7 @@ import os
 
 
 def grabJson():
-    global pause_flag,textMode,,cc_correct
+    global pause_flag,textMode,cc_correct
 
     config=json.load(open("SHAWTYS_TRINKETS/BRAIN.json"))
 
