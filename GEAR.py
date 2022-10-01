@@ -100,7 +100,7 @@ def automate():
             params=grabJson()
             time.sleep(1)
             print("Paused....",end='\r')
-        print(f'\n{params}\n')
+        print(f'\n{params} FromText: {bool(textMode)}\n')
         params.update(defaulted_args)
         
         if textMode==0:
@@ -112,12 +112,13 @@ def automate():
             os.rename(source_dir+[file for file in os.listdir(source_dir)][0],f"{store_dir}{safeName}.png")
         
         if textMode==1:
-             proc.process_images(proc.StableDiffusionProcessingTxt2Img(**dict(params)))
-             try:
+            proc.process_images(proc.StableDiffusionProcessingTxt2Img(**dict(params)))
+            try:
                 safeName=np.max([int(file.split(".")[0]) for file in os.listdir(store_dir)]+[-1])+1
                 os.rename(source_dir+[file for file in os.listdir(source_dir)][0],f"{store_dir}{safeName}.png")
             except:
                 pass
+                
         #take the image just produced, move it to /IN dir
         output_img=[file for file in os.listdir(output_dir)][0]
         os.rename(output_dir+ output_img, source_dir+ output_img)

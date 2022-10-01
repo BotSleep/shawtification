@@ -21,13 +21,14 @@ def pauseRead():
     return config
 
 def main():
-    
+
     words=readStory()
-    curCount=binCount()
-    config=pauseRead()
     
     for i,w in enumerate(words):
-    
+        print(i)
+        curCount=binCount()
+        config=pauseRead()
+        
         idx=min(i+10,len(words))
         config["Positive_Prompt"]=" ".join(words[i:idx])
         
@@ -39,9 +40,12 @@ def main():
         
         with open("BRAIN.json","w") as outfile:
             outfile.write(json.dumps(config))
-            
-        while curCount-2<binCount():
-            time.sleep(0.5)
+        if i==0:
+            while(len([file for file in os.listdir("IO/IN")])==0):
+                time.sleep(1)
+        else:
+            while curCount-2<binCount():
+                time.sleep(0.5)
         
 if __name__=='__main__':
     main()
