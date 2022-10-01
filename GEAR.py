@@ -34,11 +34,16 @@ def grabJson():
         pause_flag=0
         
     zint=int(config["Z_Pixels"])
-    img=cv2.imread(source_dir+[file for file in os.listdir(source_dir)][0])
+    img=Image.open(source_dir+[file for file in os.listdir(source_dir)][0])
+    if img.size[0]!=storeParams["width"] or img.size[1]!=storeParams["width"]:
+        img=img.resize((storeParams["width"],storeParams["width"]),2)
+        img.save(source_dir+[file for file in os.listdir(source_dir)][0])
     
     if zint==0:
         storeParams["init_images"]=[img]
+        
     else:
+        img=cv2.imread(source_dir+[file for file in os.listdir(source_dir)][0])
         dims=img.shape[0:2]
         
         if zint>0:
@@ -54,16 +59,16 @@ def grabJson():
         
         cv2.imwrite(Z_file,img)
         storeParams["init_images"]=[(Image.open(Z_file)).convert("RGBA")]
-
+    ss=(storeParams["init_images"][0]).size[0]
     if int(config["M_Pixels"])>0:
         try:
             os.remove(M_file)
         except:
             pass
         M=int(config["M_Pixels"])
-        block=np.zeros((img.shape[0]-M*2,img.shape[1]-M*2,3))
-        noblock=np.ones((img.shape[0],img.shape[0],3))
-        noblock[M:img.shape[0]-M,M:img.shape[1]-M,:]=block
+        block=np.zeros((ss-M*2,ss-M*2,3))
+        noblock=np.ones((ss,ss,3))
+        noblock[M:ss-M,M:ss-M,:]=block
         cv2.imwrite(M_file,(noblock*255).astype(np.uint8))
         mask=Image.open(M_file)
         mask=mask.convert("RGBA")

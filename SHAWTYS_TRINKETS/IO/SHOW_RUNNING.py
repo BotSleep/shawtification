@@ -4,7 +4,6 @@ import time
 import numpy as np
 
 def showLatest(files):
-    print(f"BIN/{np.max(files)}.png")
     latest=cv2.imread(f"BIN/{np.max(files)}.png")
     latest=cv2.resize(latest,(512,512), interpolation = cv2.INTER_AREA)
     cv2.imshow("Latest",latest)
