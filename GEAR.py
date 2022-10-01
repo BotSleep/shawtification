@@ -10,12 +10,10 @@ import cv2
 import os
 
 def grabJson():
-    global pause_flag
+    global pause_flag,textMode
 
     config=json.load(open("SHAWTYS_TRINKETS/BRAIN.json"))
 
-    
-    
     storeParams={
         "prompt":                      str(config["Positive_Prompt"]),
         "negative_prompt":      str(config["Negative_Prompt"]),
@@ -23,8 +21,7 @@ def grabJson():
         "sampler_index":          int(config["Sampler_Index"]),
         "steps":                          int(config["Steps"]),
         "width":                         int(config["Dimension"]),
-        "height":                        int(config["Dimension"]),
-        "denoising_strength":   float(config["Denoise"])
+        "height":                        int(config["Dimension"])
     }
     
     if str(config["Pause_Flag"])!="0":
@@ -32,8 +29,17 @@ def grabJson():
         return storeParams.update(defaulted_args)
     else:
         pause_flag=0
-        
+    
+    if int(config["From_Text"])!=0:
+        textMode=1
+        return storeParams
+    else:
+        textMode=0
+    
+    storeParams["denoising_strength"]=float(config["Denoise"])
+    
     zint=int(config["Z_Pixels"])
+    
     img=Image.open(source_dir+[file for file in os.listdir(source_dir)][0])
     if img.size[0]!=storeParams["width"] or img.size[1]!=storeParams["width"]:
         img=img.resize((storeParams["width"],storeParams["width"]),2)
@@ -88,12 +94,7 @@ def grabJson():
 
 def automate():
     while True:
-        '''
-        Rebooting this specific program requires the initialization of a venv.
-        To prevent the need for a restart after a cycles been initiated
-        setting the Brain.json pause flag to anythin other than "0" pauses the cycle.
-        This would allow you to replace the starting image, without needing to restart.
-        '''
+        
         params=grabJson()
         while pause_flag!=0:
             params=grabJson()
@@ -102,20 +103,24 @@ def automate():
         print(f'\n{params}\n')
         params.update(defaulted_args)
         
-        #using paramaters obtained from BRAIN.json, run with the image in /IN dir
-        proc.process_images(proc.StableDiffusionProcessingImg2Img(**dict(params)))
+        if textMode==0:
+            #using paramaters obtained from BRAIN.json, run with the image in /IN dir
+            proc.process_images(proc.StableDiffusionProcessingImg2Img(**dict(params)))
+            
+            #take the /IN dir image, move it to bin. Start naming at 0.png, and increment
+            safeName=np.max([int(file.split(".")[0]) for file in os.listdir(store_dir)]+[-1])+1
+            os.rename(source_dir+[file for file in os.listdir(source_dir)][0],f"{store_dir}{safeName}.png")
         
-        #take the /IN dir image, move it to bin. Start naming at 0.png, and increment
-        safeName=np.max([int(file.split(".")[0]) for file in os.listdir(store_dir)]+[-1])+1
-        os.rename(source_dir+[file for file in os.listdir(source_dir)][0],f"{store_dir}{safeName}.png")
-        
+        if textMode==1:
+             proc.process_images(proc.StableDiffusionProcessingTxt2Img(**dict(params)))
+             try:
+                safeName=np.max([int(file.split(".")[0]) for file in os.listdir(store_dir)]+[-1])+1
+                os.rename(source_dir+[file for file in os.listdir(source_dir)][0],f"{store_dir}{safeName}.png")
+            except:
+                pass
         #take the image just produced, move it to /IN dir
         output_img=[file for file in os.listdir(output_dir)][0]
         os.rename(output_dir+ output_img, source_dir+ output_img)
-        
-        
-        
-        
         
     return
         
@@ -159,5 +164,5 @@ if __name__=='__main__':
         "restore_faces":False  
     }
     
-    pause_flag=1
+    pause_flag,textMode=1,0
     automate()
