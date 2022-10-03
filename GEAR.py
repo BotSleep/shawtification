@@ -12,6 +12,14 @@ import json
 import cv2
 import os
 
+check=["SHAWTYS_TRINKETS/BIN_OUT/","SHAWTYS_TRINKETS/IO/OUT/","SHAWTYS_TRINKETS/IO/IN/","SHAWTYS_TRINKETS/IO/BIN/"]
+for i in range(4):
+    try:
+        os.remove(check[i]+".gitkeep")
+    except:
+        pass
+    
+
 
 def grabJson():
     global pause_flag,textMode,cc_correct
@@ -43,7 +51,7 @@ def grabJson():
     cc_correct=0
     if int(config["Color_Correct"])==1:
         cc_correct=1
-        if !(os.path.exists(C_file)):
+        if not (os.path.exists(C_file)):
             try:
                 cc=cv2.imread(source_dir+[file for file in os.listdir(source_dir)][0])
                 cc=cv2.resize(cc,(int(storeParams["height"]),int(storeParams["height"])),cv2.INTER_AREA)
